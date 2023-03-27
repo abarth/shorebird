@@ -189,6 +189,11 @@ Shorebird's fork of the Flutter engine that includes the Shorebird updater.
 To pass arguments to the underlying `flutter run` use a `--` separator.  For example:
 `shorebird run -- -d my_device` will run on a specific device.
 
+The first time you run `shorebird run` it will need to download the Shorebird
+engine into the `.shorebird` directory within your project.  This is about
+~200mb in download (we can make it much smaller, just haven't yet) and can take
+several seconds depending on your internet connection.
+
 During this trusted tester period, you will likely see several logs from the
 shorebird updater.  These are for debugging in case you have trouble
 and will be removed/silenced in future iterations.
@@ -246,16 +251,33 @@ E/flutter ( 7283): updater::updater: Problem updating: error sending request for
 That indicates you have not yet added the network permissions (see above)
 to your app, as I had forgotten when running my example above.
 
-## Publishing patches to your app
+## Publishing your app to the Play Store
 
-To publish a patch to your app, use `shorebird publish`. It should look like:
+Once you are ready to publish your app to the Play Store, you will need to
+build a release version of your app.
+
+Shorebird needs to know the exact apk you publish to the store, in order to
+correctly provide later updates.  When you're ready, use `shorebird release`
+to build the final release version of your app.  This will build the app
+and then upload the apk to the Shorebird servers.
+
+Shorebird does not yet support automatically uploading the appbundle to the
+Play Store.  You will need to do this manually, however `shorebird release`
+will print the path and provide brief instructions on how to do this.
+
+## Deploying patches to your app
+
+Once you've released a version of your app to the Play Store, you can
+deploy patches to it.
+
+To deploy a patch to your app, use `shorebird patch`. It should look like:
 
 ```
-shorebird publish
+shorebird patch
 ✓ Building release (5.5s)
 ✓ Fetching apps (0.2s)
 
-🚀 Ready to publish a new patch!
+🚀 Ready to patch your app!
 
 📱 App: My App (28f5d0d9-158a-4401-8f19-cd19b90d6414)
 📦 Release Version: 1.0.0
@@ -267,25 +289,28 @@ Would you like to continue? (y/N) Yes
 ✓ Creating patch (79ms)
 ✓ Creating artifact (0.7s)
 ✓ Fetching channels (75ms)
-✓ Publishing patch (75ms)
+✓ Deploying patch (75ms)
 
-✅ Published Successfully!
+✅ Patched Successfully!
+
+Apps will update in the background as they next launch.
 ```
 
-The first time you run `shorebird publish` it will need to download the Shorebird
-engine into the `.shorebird` directory within your project.  This is about
-~200mb in download (we can make it much smaller, just haven't yet) and can take
-several seconds depending on your internet connection.
+// This flow no longer works, requires a `shorebird release` first:
 
-This will generate a new build of your app and upload it to the Shorebird servers for distribution to all other copies of your app. For example, you could try `shorebird run` to run and install your app, and then
-stop it.  Make edits and `shorebird publish` and then run the
-app again directly (by clicking on it, without using `shorebird run`) and you
-should notice that it updates to the latest built and published version rather
-than using the previously installed version.
+This will generate a new build of your app and upload it to the Shorebird
+servers for distribution to all other copies of your app. For example, you could
+try `shorebird run` to run and install your app, and then stop it.  Make edits
+and `shorebird patch` and then run the app again directly (by clicking on it,
+without using `shorebird run`) and you should notice that it updates to the
+latest built and published version rather than using the previously installed
+version.
 
 The current `shorebird publish` flow is not how we envision Shorebird being used
 longer term (e.g one might push a git hash to a CI/CD system, which would
 then publish it to Shorebird).  However, it's the simplest thing to do for now.
+
+// This is also no longer correct?
 
 Note that you can only publish a patch to an app that you have already told
 shorebird about.  This is normally done by `shorebird init`, but if needed
@@ -299,7 +324,8 @@ AndroidManifest.xml, which in turn is generated from pubspec.yaml).
 
 ## Building a release version of your app
 
-You can use `shorebird build` to build a release version of your app including the Shorebird updater.
+You can use `shorebird build` to build a release version of your app including
+the Shorebird updater.
 
 `shorebird build` wraps `flutter build` and can take any argument `flutter build`
 can.  To pass arguments to the underlying `flutter build` you need
@@ -331,8 +357,13 @@ as normal.  Should you ever choose to delete an update from our servers, all you
 clients will continue to run as normal.
 
 We have not yet added the ability to rollback patches, but it's on our todo
-list and happy to prioritize it if it's important to you.  For now, the simplest
+list and happy to prioritize it if it's important to you.
+https://github.com/shorebirdtech/shorebird/issues/126 For now, the simplest
 thing is to simply push a new patch that reverts the changes you want to undo.
+
+We also do not yet offer a way to track status of rollouts, but if that's
+important to you, please let us know:
+https://github.com/shorebirdtech/shorebird/issues/181
 
 ## Play Store
 
