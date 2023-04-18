@@ -16,7 +16,6 @@ class DoctorCommand extends ShorebirdCommand with ShorebirdVersionMixin {
   DoctorCommand({
     required super.logger,
     super.validators,
-    super.process,
   }) {
     validators = _allValidators(baseValidators: validators);
   }
@@ -25,7 +24,7 @@ class DoctorCommand extends ShorebirdCommand with ShorebirdVersionMixin {
     ShorebirdVersionValidator(
       isShorebirdVersionCurrent: isShorebirdVersionCurrent,
     ),
-    ShorebirdFlutterValidator(runProcess: process.run),
+    ShorebirdFlutterValidator(),
     AndroidInternetPermissionValidator(),
   ];
 
@@ -45,7 +44,7 @@ Shorebird v$packageVersion
     var numIssues = 0;
     for (final validator in validators) {
       final progress = logger.progress(validator.description);
-      final issues = await validator.validate();
+      final issues = await validator.validate(process);
       numIssues += issues.length;
       if (issues.isEmpty) {
         progress.complete();

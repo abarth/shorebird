@@ -60,9 +60,11 @@ void main() {
           return codePushClient;
         },
         logger: logger,
-        process: shorebirdProcess,
         validators: [flutterValidator],
-      )..testArgResults = argResults;
+      )
+        ..testArgResults = argResults
+        ..testProcess = shorebirdProcess;
+      registerFallbackValue(shorebirdProcess);
 
       when(
         () => shorebirdProcess.run(
@@ -79,7 +81,7 @@ void main() {
       when(() => auth.client).thenReturn(httpClient);
       when(() => logger.progress(any())).thenReturn(_MockProgress());
       when(() => logger.info(any())).thenReturn(null);
-      when(() => flutterValidator.validate()).thenAnswer((_) async => []);
+      when(() => flutterValidator.validate(any())).thenAnswer((_) async => []);
     });
 
     test('exits with no user when not logged in', () async {
@@ -119,7 +121,7 @@ void main() {
     });
 
     test('prints flutter validation warnings', () async {
-      when(() => flutterValidator.validate()).thenAnswer(
+      when(() => flutterValidator.validate(any())).thenAnswer(
         (_) async => [
           const ValidationIssue(
             severity: ValidationIssueSeverity.warning,
