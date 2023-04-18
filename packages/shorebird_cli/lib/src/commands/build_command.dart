@@ -18,8 +18,8 @@ class BuildCommand extends ShorebirdCommand
     required super.logger,
     super.auth,
     super.buildCodePushClient,
-    super.runProcess,
     super.validators,
+    super.process,
   });
 
   @override
